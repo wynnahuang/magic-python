@@ -124,22 +124,34 @@ def drawPickLevelScreen(win):
 
 '''
 '''
-def processNextUserInput(win, list_easy_words, entry_box, next_word, blank_positions, y_coordinate, wrong_letter_positions, incorrect_guesses):
+def processNextUserInput(win, list_easy_words, entry_box, next_word, blank_positions, y_coordinate, wrong_letter_positions, incorrect_guesses, guessed_letters):
     win.getMouse()
     alphabets = entry_box.getText()
     print (alphabets)
     if len(alphabets) > 0:
         alphabet = alphabets[0]
         print (alphabet)
-        # Take care of repeating letters
+        # Check for repeating letters
+        if guessed_letters[alphabet] == 1:
+          warning = Text(Point(100, 50), alphabet + " was already picked.")
+          warning.setTextColor("red")
+          warning.setSize(17)
+          warning.draw(win)
+          time.sleep(1)
+          warning.undraw()
+          return -1
+        
+        guessed_letters[alphabet] = 1
+        num_matches = 0
         if alphabet in next_word:
             for i in range(len(next_word)):
                 if alphabet == next_word[i]:
                     matching_index = i
-            x = Text(Point(blank_positions[matching_index], y_coordinate+10), alphabet)
-            x.setTextColor("green")
-            x.draw(win)
-            return 1
+                    num_matches = num_matches + 1
+                    x = Text(Point(blank_positions[matching_index], y_coordinate+10), alphabet)
+                    x.setTextColor("green")
+                    x.draw(win)
+            return num_matches 
         else:
             # Letter not in word
             # Put letter in box
@@ -170,12 +182,16 @@ def processNextUserInput(win, list_easy_words, entry_box, next_word, blank_posit
               left_leg.draw(win)
             
             return 0
-    return 2
+    return -1
+
+def InitializeGuessedLetters(guessed_letters):
+  alphabet_array = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  for i in range(len(alphabet_array)):
+    guessed_letters[alphabet_array[i]] = 0
 
 '''
 Displays the background and sets up level 1
 '''
-
 def drawLevel1Screen(win):
   win.setBackground("white")
 
@@ -217,22 +233,55 @@ def drawLevel1Screen(win):
   
   correct_guesses = 0
   incorrect_guesses = 0
+
+  guessed_letters = {}
+  InitializeGuessedLetters(guessed_letters)
   
   while(correct_guesses < 4 and incorrect_guesses < 6):
-    y = processNextUserInput(win, list_easy_words, entry_box, next_word, blank_positions,  y_coordinate, wrong_letter_positions, incorrect_guesses)
+    y = processNextUserInput(win, list_easy_words, entry_box, next_word, blank_positions,  y_coordinate, wrong_letter_positions, incorrect_guesses, guessed_letters)
     if y == 0:
       # Incorrect guess
       incorrect_guesses = incorrect_guesses + 1
-    elif y == 1:
+    elif y >= 1:
       # Correct guess
-      correct_guesses = correct_guesses + 1
+      correct_guesses = correct_guesses + y
     else:
       print("No input")
   if correct_guesses == 4:
-    print("YOU WON!!")
+    level1.undraw()
+    l1wordbox.undraw()
+    l1wrongwords.undraw()
+    #blank_positions.undraw()
+    entry_box.undraw()
+    alphabet1.undraw()
+    alphabet2.undraw()
+    #next_word_index.undraw()
+    win.setBackground("black")
+    you = Text(Point (200, 450), "YOU  ")
+    you.setSize(30)
+    you.setTextColor("white")
+    you.draw(win)
+    won = Text(Point (280, 450), "WON!!!")
+    won.setSize(30)
+    won.setTextColor("cyan")
+    won.draw(win)
     # Draw "You won" screen 
   elif incorrect_guesses == 6:
-    print("TRY AGAIN!")
+    level1.undraw()
+    l1wordbox.undraw()
+    l1wrongwords.undraw()
+    #blank_positions.undraw()
+    entry_box.undraw()
+    alphabet1.undraw()
+    alphabet2.undraw()
+    head.undraw()
+    body.undraw()
+    right_arm.undraw()
+    left_arm.undraw()
+    left_leg.undraw()
+    
+    #next_word_index.undraw()
+    win.setBackground("black")
     # Draw "Try again" screen
   return
 
