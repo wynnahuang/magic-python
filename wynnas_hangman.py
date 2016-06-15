@@ -233,7 +233,7 @@ def processNextUserInput(win, entry_box, next_word, incorrect_guesses, blank_pos
             # Put letter in box
       
             alphabet = Text(Point(wrong_letter_positions[incorrect_guesses], 430), alphabet)
-            alphabet.setTextColor("red")
+            alphabet.setTextColor("black")
             alphabet.draw(win)
             # Draw hangman part. Draw different things at different incorrect guesses
 
@@ -331,7 +331,7 @@ def drawLevelScreen(win, level):
     alphabet2.undraw()
     #next_word_index.undraw()
     win.setBackground("black")
-    you = Text(Point (200, 450), "YOU  ")
+    you = Text(Point (200, 450), "YOU   ")
     you.setSize(30)
     you.setTextColor("white")
     you.draw(win)
@@ -339,6 +339,9 @@ def drawLevelScreen(win, level):
     won.setSize(30)
     won.setTextColor("cyan")
     won.draw(win)
+    image1 = Image(Point(250, 250), "you_won_screen.gif")
+    image1.draw(win)
+    
     # Draw "You won" screen 
   elif incorrect_guesses == 6:
     level1.undraw()
@@ -352,6 +355,17 @@ def drawLevelScreen(win, level):
     right_arm.undraw()
     left_arm.undraw()
     left_leg.undraw()'''
+    you2 = Text(Point (200, 450), "YOU ")
+    you2.setSize(30)
+    you2.setTextColor("maroon")
+    you2.draw(win)
+    lost = Text(Point (285, 450), "LOST!!!")
+    lost.setSize(30)
+    lost.setTextColor("red")
+    lost.draw(win)
+    
+    image2 = Image(Point(250, 250), "you_lost_screen.gif")
+    image2.draw(win)
     
     #next_word_index.undraw()
     win.setBackground("black")
