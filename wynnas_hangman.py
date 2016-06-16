@@ -2,6 +2,8 @@ from graphics import *
 import time
 import random
 
+global list_of_undraws
+list_of_undraws = []
 
 def drawBlanks(win, xcoord, ycoord):
   l1blanks = Text(Point(xcoord, ycoord), "___ ")
@@ -73,6 +75,13 @@ def drawWelcomeScreen(win):
     welcome3.move(40, 100)
     welcome4.move(45, 100)
     # Add another phrase going up
+    if win.checkMouse() != None:
+      break
+    time.sleep(1)
+    welcome1.move(10, 100)
+    welcome2.move(15, 100)
+    welcome3.move(20, 100)
+    welcome4.move(25, 100)
 
 
   # Go to the next screen
@@ -201,9 +210,12 @@ def drawPickLevelScreen(win):
     
 '''
 '''
-def processNextUserInput(win, entry_box, next_word, incorrect_guesses, blank_positions, y_coordinate, guessed_letters, wrong_letter_positions):
+def processNextUserInput(win, next_word, incorrect_guesses, blank_positions, y_coordinate, guessed_letters, wrong_letter_positions):
     global list_easy_words
+    global list_of_undraws
     alphabet = win.getKey()
+    if alphabet not in guessed_letters:
+      return -1
     print (alphabet)
     if len(alphabet) > 0:
         print (alphabet)
@@ -225,16 +237,18 @@ def processNextUserInput(win, entry_box, next_word, incorrect_guesses, blank_pos
                     matching_index = i
                     num_matches = num_matches + 1
                     x = Text(Point(blank_positions[matching_index], y_coordinate+10), alphabet)
-                    x.setTextColor("green")
+                    x.setTextColor("green3")
                     x.draw(win)
-            return num_matches 
+                    list_of_undraws.append(x)
+            return num_matches
         else:
             # Letter not in word
             # Put letter in box
       
             alphabet = Text(Point(wrong_letter_positions[incorrect_guesses], 430), alphabet)
-            alphabet.setTextColor("black")
+            alphabet.setTextColor("red")
             alphabet.draw(win)
+            list_of_undraws.append(alphabet)
             # Draw hangman part. Draw different things at different incorrect guesses
 
             if incorrect_guesses == 0:
@@ -269,6 +283,7 @@ def InitializeGuessedLetters(guessed_letters):
 Displays the background and sets up level 
 '''
 def drawLevelScreen(win, level):
+  global list_of_undraws
   win.setBackground("white")
 
   level1 = Text(Point(50, 450), "Level " + str(level))
@@ -279,30 +294,45 @@ def drawLevelScreen(win, level):
   l1wordbox = Rectangle(Point(300, 400), Point(500, 450))
   l1wordbox.draw(win)
 
-
   l1wrongwords = Text(Point(350, 475), "Wrong Letters: ")
   l1wrongwords.setTextColor("cyan")
   l1wrongwords.setSize(15)
   l1wrongwords.draw(win)
   
-  blank_positions = (200, 240, 280, 320)
+  blank_positions = (200, 240, 280, 320, 360, 400, 440, 480)
   wrong_letter_positions = (320, 330, 340, 350, 360, 370)
   y_coordinate = 150
-  for i in range(4):
+  if level == 1:
+    word_length = 4
+  elif level == 2:
+    word_length = 6
+  else:
+    word_length = 8
+    
+  for i in range(word_length):
     drawBlanks(win, blank_positions[i], y_coordinate)
   
-  entry_box = Entry(Point(100, 100), 20)
   alphabet1 = Text(Point(250, 50), "a b c d e f g h i j k l m")
   alphabet2 = Text(Point(250, 30), "n o p q r s t u v w x y z")
-  #entry_box.draw(win)
   alphabet1.draw(win)
   alphabet2.draw(win)
 
   list_easy_words = ['make', 'jump', 'dogs', "fall", "leaf", "bowl", "food", "milk", "card", "made"]
+  list_medium_words = ['missio', 'monkey', 'nailed']
+  list_hard_words = ['bargains', 'computer', 'journals']
 
   random.seed()
-  next_word_index = random.randint(0, len(list_easy_words)-1)
-  next_word = list_easy_words[next_word_index]
+  if level == 1:
+    next_word_index = random.randint(0, len(list_easy_words)-1)
+    next_word = list_easy_words[next_word_index]
+  elif level == 2:
+    next_word_index = random.randint(0, len(list_medium_words)-1)
+    next_word = list_medium_words[next_word_index]
+  else:
+    # Level must be three
+    next_word_index = random.randint(0, len(list_hard_words)-1)
+    next_word = list_hard_words[next_word_index]
+
   print (next_word)
   
   correct_guesses = 0
@@ -311,8 +341,8 @@ def drawLevelScreen(win, level):
   guessed_letters = {}
   InitializeGuessedLetters(guessed_letters)
   
-  while(correct_guesses < 4 and incorrect_guesses < 6):
-    y = processNextUserInput(win, entry_box, next_word, incorrect_guesses, blank_positions, y_coordinate, guessed_letters, wrong_letter_positions)
+  while(correct_guesses < word_length and incorrect_guesses < 6):
+    y = processNextUserInput(win, next_word, incorrect_guesses, blank_positions, y_coordinate, guessed_letters, wrong_letter_positions)
     if y == 0:
       # Incorrect guess
       incorrect_guesses = incorrect_guesses + 1
@@ -320,13 +350,12 @@ def drawLevelScreen(win, level):
       # Correct guess
       correct_guesses = correct_guesses + y
     else:
-      print("No input")
-  if correct_guesses == 4:
+      print("No alphabet")
+  if correct_guesses == word_length:
     level1.undraw()
     l1wordbox.undraw()
     l1wrongwords.undraw()
     #unDrawBlanks.undraw()
-    entry_box.undraw()
     alphabet1.undraw()
     alphabet2.undraw()
     #next_word_index.undraw()
@@ -347,9 +376,11 @@ def drawLevelScreen(win, level):
     level1.undraw()
     l1wordbox.undraw()
     l1wrongwords.undraw()
-    entry_box.undraw()
     alphabet1.undraw()
     alphabet2.undraw()
+    for i in range(len(list_of_undraws)):
+      list_of_undraws[i].undraw()
+      
     '''head.undraw()
     body.undraw()
     right_arm.undraw()
