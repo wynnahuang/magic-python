@@ -6,17 +6,12 @@ global list_of_undraws
 list_of_undraws = []
 
 def drawBlanks(win, xcoord, ycoord):
-  l1blanks = Text(Point(xcoord, ycoord), "___ ")
-  l1blanks.setTextColor("black")
-  l1blanks.setSize(17)
-  l1blanks.draw(win)
-  return
-
-def unDrawBlanks(win, xcoord, ycoord):
-  l1blanks = Text(Point(xcoord, ycoord), "___ ")
-  l1blanks.setTextColor("black")
-  l1blanks.setSize(17)
-  l1blanks.draw(win)
+  global list_of_undraws
+  lblanks = Text(Point(xcoord, ycoord), "___ ")
+  lblanks.setTextColor("black")
+  lblanks.setSize(17)
+  lblanks.draw(win)
+  list_of_undraws.append(lblanks)
   return
 
 '''
@@ -179,7 +174,7 @@ def drawPickLevelScreen(win):
   level_2B.draw(win)
 
   level_3 = Text(Point(250, 250), "LEVEL")
-  level_3.setTextColor("red")
+  level_3.setTextColor("pink")
   level_3.setSize(30)
   level_3.draw(win)
   level_3A = Text(Point(285, 250), "      3")
@@ -191,7 +186,22 @@ def drawPickLevelScreen(win):
   level_3B.setSize(20)
   level_3B.draw(win)
 
+  done = Text(Point(250, 100), 'DONE')
+  done.setTextColor("red")
+  done.setSize(20)
+  done.draw(win)
+
   while True:
+    time.sleep(5)
+    click_point = win.checkMouse()
+    # Check if a point was clicked and if it was on the exit image
+    if click_point != None:
+      click_x = click_point.getX()
+      click_y = click_point.getY()
+      if click_x > 220 and click_x < 280 and click_y > 90 and click_y < 110:
+        done.undraw()
+        return "q"
+      
     level_choice = win.getKey()
     if level_choice == "e" or level_choice == "E" or level_choice == "m" or level_choice == "M" or level_choice == "h" or level_choice == "H":
       level_1.undraw()
@@ -203,6 +213,7 @@ def drawPickLevelScreen(win):
       level_3.undraw()
       level_3A.undraw()
       level_3B.undraw()
+      done.undraw()
       return level_choice
     else:
       #Add a line that says "please enter e, m, or h"
@@ -211,14 +222,13 @@ def drawPickLevelScreen(win):
 '''
 '''
 def processNextUserInput(win, next_word, incorrect_guesses, blank_positions, y_coordinate, guessed_letters, wrong_letter_positions):
-    global list_easy_words
     global list_of_undraws
     alphabet = win.getKey()
     if alphabet not in guessed_letters:
       return -1
-    print (alphabet)
+    # print (alphabet)
     if len(alphabet) > 0:
-        print (alphabet)
+        # print (alphabet)
         # Check for repeating letters
         if guessed_letters[alphabet] == 1:
           warning = Text(Point(100, 50), alphabet + " was already picked.")
@@ -254,23 +264,28 @@ def processNextUserInput(win, next_word, incorrect_guesses, blank_positions, y_c
             if incorrect_guesses == 0:
               head = Circle(Point(150,400), 30)
               head.draw(win)
+              list_of_undraws.append(head)
             elif incorrect_guesses == 1:
               # Draw body
               body = Line(Point(150, 370), Point(150, 290))
               body.draw(win)
+              list_of_undraws.append(body)
             elif incorrect_guesses == 2:
               right_arm = Line(Point(150, 350), Point(170, 310))
               right_arm.draw(win)
+              list_of_undraws.append(right_arm)
             elif incorrect_guesses == 3:
               left_arm = Line(Point(150, 350), Point(130, 310))
               left_arm.draw(win)
+              list_of_undraws.append(left_arm)
             elif incorrect_guesses == 4:
               right_leg = Line(Point(150, 290), Point (170, 230))
               right_leg.draw(win)
+              list_of_undraws.append(right_leg)
             else:
               left_leg = Line(Point(150, 290), Point (120,230))
               left_leg.draw(win)
-            
+              list_of_undraws.append(left_leg)
             return 0
     return -1
 
@@ -279,6 +294,13 @@ def InitializeGuessedLetters(guessed_letters):
   for i in range(len(alphabet_array)):
     guessed_letters[alphabet_array[i]] = 0
 
+
+def undrawScreen():
+  global list_of_undraws
+  for i in range(len(list_of_undraws)):
+    list_of_undraws[i].undraw()
+  list_of_undraws = []
+
 '''
 Displays the background and sets up level 
 '''
@@ -286,18 +308,21 @@ def drawLevelScreen(win, level):
   global list_of_undraws
   win.setBackground("white")
 
-  level1 = Text(Point(50, 450), "Level " + str(level))
-  level1.setTextColor("green")
-  level1.setSize(20)
-  level1.draw(win)
+  level_number = Text(Point(50, 450), "Level " + str(level))
+  level_number.setTextColor("green")
+  level_number.setSize(20)
+  level_number.draw(win)
+  list_of_undraws.append(level_number)
 
-  l1wordbox = Rectangle(Point(300, 400), Point(500, 450))
-  l1wordbox.draw(win)
+  lwordbox = Rectangle(Point(300, 400), Point(500, 450))
+  lwordbox.draw(win)
+  list_of_undraws.append(lwordbox)
 
-  l1wrongwords = Text(Point(350, 475), "Wrong Letters: ")
-  l1wrongwords.setTextColor("cyan")
-  l1wrongwords.setSize(15)
-  l1wrongwords.draw(win)
+  lwrongwords = Text(Point(350, 475), "Wrong Letters: ")
+  lwrongwords.setTextColor("cyan")
+  lwrongwords.setSize(15)
+  lwrongwords.draw(win)
+  list_of_undraws.append(lwrongwords)
   
   blank_positions = (200, 240, 280, 320, 360, 400, 440, 480)
   wrong_letter_positions = (320, 330, 340, 350, 360, 370)
@@ -316,10 +341,12 @@ def drawLevelScreen(win, level):
   alphabet2 = Text(Point(250, 30), "n o p q r s t u v w x y z")
   alphabet1.draw(win)
   alphabet2.draw(win)
+  list_of_undraws.append(alphabet1)
+  list_of_undraws.append(alphabet2)
 
-  list_easy_words = ['make', 'jump', 'dogs', "fall", "leaf", "bowl", "food", "milk", "card", "made"]
-  list_medium_words = ['missio', 'monkey', 'nailed']
-  list_hard_words = ['bargains', 'computer', 'journals']
+  list_easy_words = ['make', 'jump', 'dogs', "fall", "leaf", "bowl", "food", "milk", "card", "made", "goal", "gold", "beds", "leaf", "bugs", "feet", "foot", "hair"]
+  list_medium_words = ['jinxed', 'monkey', 'nailed', 'puzzle', 'lizard', 'pizzas', 'across', 'active', 'agenda', 'afraid', 'gender', 'family', 'extend', 'forget', 'person', 'toward']
+  list_hard_words = ['bargains', 'computer', 'journals', 'aardvark', 'abnegate', 'academic', 'buoyance', 'burritos', 'callings', 'calories', 'diligent', 'dripping', 'drumbeat', 'dumbness', 'emporium', 'emigrating', 'flinched', 'flawless', 'flirting', 'greedier', 'lashings',  'quilting']
 
   random.seed()
   if level == 1:
@@ -351,56 +378,56 @@ def drawLevelScreen(win, level):
       correct_guesses = correct_guesses + y
     else:
       print("No alphabet")
+      
   if correct_guesses == word_length:
-    level1.undraw()
-    l1wordbox.undraw()
-    l1wrongwords.undraw()
-    #unDrawBlanks.undraw()
-    alphabet1.undraw()
-    alphabet2.undraw()
-    #next_word_index.undraw()
+    # Draw "You won" screen
+    undrawScreen()
+      
     win.setBackground("black")
     you = Text(Point (200, 450), "YOU   ")
     you.setSize(30)
     you.setTextColor("white")
     you.draw(win)
+    list_of_undraws.append(you)
+    
     won = Text(Point (280, 450), "WON!!!")
     won.setSize(30)
     won.setTextColor("cyan")
     won.draw(win)
+    list_of_undraws.append(won)
+    
     image1 = Image(Point(250, 250), "you_won_screen.gif")
     image1.draw(win)
-    
-    # Draw "You won" screen 
+    list_of_undraws.append(image1)
+     
   elif incorrect_guesses == 6:
-    level1.undraw()
-    l1wordbox.undraw()
-    l1wrongwords.undraw()
-    alphabet1.undraw()
-    alphabet2.undraw()
-    for i in range(len(list_of_undraws)):
-      list_of_undraws[i].undraw()
-      
-    '''head.undraw()
-    body.undraw()
-    right_arm.undraw()
-    left_arm.undraw()
-    left_leg.undraw()'''
+    # Draw "You won" screen
+    undrawScreen()
+
+    win.setBackground("black")
     you2 = Text(Point (200, 450), "YOU ")
     you2.setSize(30)
     you2.setTextColor("maroon")
     you2.draw(win)
+    list_of_undraws.append(you2)
+    
     lost = Text(Point (285, 450), "LOST!!!")
     lost.setSize(30)
     lost.setTextColor("red")
     lost.draw(win)
+    list_of_undraws.append(lost)
     
     image2 = Image(Point(250, 250), "you_lost_screen.gif")
     image2.draw(win)
+    list_of_undraws.append(image2)
+
+    correct_word_display = Text(Point (230, 100), "The correct word was " + next_word)
+    correct_word_display.setTextColor("red")
+    correct_word_display.setSize(15)
+    correct_word_display.draw(win)
+    time.sleep(5)
+    correct_word_display.undraw()
     
-    #next_word_index.undraw()
-    win.setBackground("black")
-    # Draw "Try again" screen
   return
 
 def main():
@@ -409,17 +436,20 @@ def main():
   win.setCoords(0, 0, 500, 500)
   drawWelcomeScreen(win)
   drawProceduresScreen(win)
-  user_choice = drawPickLevelScreen(win)
-  if user_choice == "e" or user_choice == "E":
-    drawLevelScreen(win, 1)
-  elif user_choice == "m" or user_choice == "M":
-    drawLevelScreen(win, 2)
-  elif user_choice == "h" or user_choice == "H":
-    drawLevelScreen(win, 3)
-  else:
-    print ("Invalid choice")
-  
-  win.getMouse()
-  win.close()
+  while True:
+    user_choice = drawPickLevelScreen(win)
+    if user_choice == "e" or user_choice == "E":
+      drawLevelScreen(win, 1)
+    elif user_choice == "m" or user_choice == "M":
+      drawLevelScreen(win, 2)
+    elif user_choice == "h" or user_choice == "H":
+      drawLevelScreen(win, 3)
+    elif user_choice == "q":
+      win.close()
+    else:
+      print ("Invalid choice")
+    time.sleep(5)
+    undrawScreen()
+    
 
 main()
